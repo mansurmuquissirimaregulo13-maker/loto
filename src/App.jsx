@@ -411,6 +411,7 @@ function ApprovedStep({ bank, name, prize, onContinue }) {
 function LiveChat() {
   const [messages, setMessages] = useState([]);
   const [viewerCount, setViewerCount] = useState(3542);
+  const [inputText, setInputText] = useState("");
   const chatRef = useRef(null);
   const msgIndexRef = useRef(0);
 
@@ -437,7 +438,6 @@ function LiveChat() {
             timestamp: "agora"
           };
           const updated = [...prev, newMsg];
-          // Keep max 50 messages for performance
           if (updated.length > 50) return updated.slice(-50);
           return updated;
         });
@@ -473,6 +473,32 @@ function LiveChat() {
     return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
   }
 
+  function handleSend() {
+    const text = inputText.trim();
+    if (!text) return;
+    const userMsg = {
+      name: "Você",
+      text: text,
+      color: "#1d4ea8",
+      id: Date.now() + Math.random(),
+      isUser: true,
+      timestamp: "agora"
+    };
+    setMessages(prev => {
+      const updated = [...prev, userMsg];
+      if (updated.length > 50) return updated.slice(-50);
+      return updated;
+    });
+    setInputText("");
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  }
+
   return (
     <section className="mt-6">
       {/* Chat Header */}
@@ -504,19 +530,19 @@ function LiveChat() {
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className="livechat-msg flex items-start gap-2 py-1.5 px-1 rounded hover:bg-white/5 transition-colors"
+              className={`livechat-msg flex items-start gap-2 py-1.5 px-1 rounded hover:bg-white/5 transition-colors ${msg.isUser ? "bg-white/5" : ""}`}
             >
               {/* Avatar */}
               <div
                 className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0 mt-0.5"
                 style={{ backgroundColor: msg.color }}
               >
-                {getInitials(msg.name)}
+                {msg.isUser ? "👤" : getInitials(msg.name)}
               </div>
               {/* Message Content */}
               <div className="flex-1 min-w-0">
                 <span className="text-[11px] leading-relaxed">
-                  <span className="font-semibold mr-1.5" style={{ color: msg.color }}>{msg.name}</span>
+                  <span className="font-semibold mr-1.5" style={{ color: msg.isUser ? "#5b9aff" : msg.color }}>{msg.name}</span>
                   <span className="text-gray-300">{msg.text}</span>
                 </span>
               </div>
@@ -525,21 +551,31 @@ function LiveChat() {
         </div>
       </div>
 
-      {/* Chat Input (disabled, decorative) */}
+      {/* Chat Input */}
       <div className="bg-[#0f0f0f] rounded-b-lg px-3 py-2.5 flex items-center gap-2 border-t border-white/10">
-        <div className="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center shrink-0">
-          <span className="text-[9px] text-gray-300 font-bold">👤</span>
+        <div className="w-6 h-6 rounded-full bg-[#1d4ea8] flex items-center justify-center shrink-0">
+          <span className="text-[9px] text-white font-bold">👤</span>
         </div>
-        <div className="flex-1 bg-[#272727] rounded-full px-3 py-1.5 text-xs text-gray-500 cursor-not-allowed">
-          Envie uma mensagem...
-        </div>
-        <button className="text-gray-500 cursor-not-allowed" disabled>
+        <input
+          type="text"
+          value={inputText}
+          onChange={e => setInputText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Envie uma mensagem..."
+          className="flex-1 bg-[#272727] rounded-full px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none border border-transparent focus:border-[#1d4ea8] transition-colors"
+        />
+        <button
+          onClick={handleSend}
+          disabled={!inputText.trim()}
+          className={`transition-colors ${inputText.trim() ? "text-[#1d4ea8] hover:text-[#5b9aff] cursor-pointer" : "text-gray-600 cursor-not-allowed"}`}
+        >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
       </div>
     </section>
   );
 }
+
 
 function VslStep({ name, bank, prize }) {
   const playerRef = useRef(null);
