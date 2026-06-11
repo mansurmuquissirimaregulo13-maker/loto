@@ -25,49 +25,69 @@ const BANKS = [
   { name: "Bidvest Bank", color: "#c8102e", short: "B" }
 ];
 
-const COMMENTS = [
-  {
-    name: "Thandi Ngwenya",
-    img: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop&crop=face",
-    text: "I couldn't believe it was real! Just received R45,000 from the National Lottery!",
-    time: "2h ago",
-    likes: 127
-  },
-  {
-    name: "Sipho Mkhize",
-    img: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop&crop=face",
-    text: "I was scared it might be a scam, but I followed the steps and it worked! Received R32,500!",
-    time: "5h ago",
-    likes: 89
-  },
-  {
-    name: "Zanele Dlamini",
-    img: "https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop&crop=face",
-    text: "Guys, this is real! I had R58,000 sitting unclaimed for months. Claimed in 3 days!",
-    time: "7h ago",
-    likes: 203
-  },
-  {
-    name: "Mandla Nkosi",
-    img: "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop&crop=face",
-    text: "My wife didn't believe me, but I showed her the proof of R73,500 I received!",
-    time: "10h ago",
-    likes: 312
-  },
-  {
-    name: "Nomsa Khumalo",
-    img: "https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop&crop=face",
-    text: "What a blessing! I claimed R28,750 that I had forgotten about.",
-    time: "14h ago",
-    likes: 156
-  },
-  {
-    name: "Bongani Sithole",
-    img: "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop&crop=face",
-    text: "Just left the bank! R51,200 in my account! This saved my life!",
-    time: "1d ago",
-    likes: 445
-  }
+const LIVE_CHAT_MESSAGES = [
+  { name: "Thandi N.", text: "Just joined!! Is this real? 😱", color: "#e74c3c" },
+  { name: "Sipho M.", text: "I received mine last week, R32,500!! Watch the whole video", color: "#3498db" },
+  { name: "Zanele D.", text: "This is legit 🔥🔥🔥", color: "#2ecc71" },
+  { name: "Mandla N.", text: "My cousin told me about this, she got R45,000", color: "#9b59b6" },
+  { name: "Nomsa K.", text: "I'm watching from Soweto, praying this works 🙏", color: "#e67e22" },
+  { name: "Bongani S.", text: "Already got my deposit, thank you National Lottery!!", color: "#1abc9c" },
+  { name: "Lerato M.", text: "How long does the video take?", color: "#e91e63" },
+  { name: "Tshepo R.", text: "Just watch it till the end bro, it explains everything", color: "#00bcd4" },
+  { name: "Palesa J.", text: "I can't believe I had unclaimed money 😭😭", color: "#ff5722" },
+  { name: "David M.", text: "Watching from Cape Town! Let's gooo 🚀", color: "#4caf50" },
+  { name: "Nokuthula Z.", text: "My friend got paid already, I'm next!", color: "#ff9800" },
+  { name: "Themba G.", text: "Is it only for South Africa?", color: "#795548" },
+  { name: "Ayanda P.", text: "Yes only SA 🇿🇦", color: "#607d8b" },
+  { name: "Lindiwe S.", text: "The video is so helpful, keep watching!", color: "#e91e63" },
+  { name: "Kabelo T.", text: "R15,000 into my FNB account last Tuesday 🎉", color: "#2196f3" },
+  { name: "Ntombi W.", text: "I was skeptical but now I'm a believer 💯", color: "#9c27b0" },
+  { name: "Sifiso N.", text: "Who else is watching from Durban? 🙋‍♂️", color: "#ff5722" },
+  { name: "Mpho K.", text: "Durban here! 🤙", color: "#4caf50" },
+  { name: "Grace O.", text: "This changed my life honestly", color: "#00bcd4" },
+  { name: "Lwazi D.", text: "How much did everyone get?", color: "#ff9800" },
+  { name: "Sizwe B.", text: "I got R28,000!! Could not believe my eyes", color: "#e74c3c" },
+  { name: "Nandi M.", text: "Watching this for the second time, it's that good 😂", color: "#3f51b5" },
+  { name: "Johannes V.", text: "My wife didn't believe me until the money hit the account 😂😂", color: "#009688" },
+  { name: "Precious M.", text: "Thank you Lord 🙏🙏🙏", color: "#e91e63" },
+  { name: "Thabiso L.", text: "Everyone needs to see this video", color: "#795548" },
+  { name: "Busisiwe H.", text: "Is the deposit automatic?", color: "#607d8b" },
+  { name: "Vusi K.", text: "Yes just watch the video it tells you exactly what to do", color: "#2196f3" },
+  { name: "Fikile N.", text: "I'm shaking right now 😳", color: "#9c27b0" },
+  { name: "Andile Z.", text: "Stay calm and watch till the end 👌", color: "#4caf50" },
+  { name: "Zanele M.", text: "Joburg gang watching 🏙️", color: "#ff5722" },
+  { name: "Thabo K.", text: "This is the best thing that happened to me this year", color: "#00bcd4" },
+  { name: "Nomvula P.", text: "Shared this with my whole family group chat 📱", color: "#ff9800" },
+  { name: "Kagiso R.", text: "R51,000 just like that... still in shock", color: "#e74c3c" },
+  { name: "Dineo S.", text: "For real?? 😱😱", color: "#3498db" },
+  { name: "Kagiso R.", text: "Dead serious, check your lottery account", color: "#e74c3c" },
+  { name: "Sbusiso M.", text: "Don't skip the video, every second matters!", color: "#2ecc71" },
+  { name: "Thandiwe L.", text: "I used Capitec and it worked perfectly", color: "#9b59b6" },
+  { name: "Xolani D.", text: "FNB also works, just got confirmed ✅", color: "#e67e22" },
+  { name: "Noluthando B.", text: "The process was so easy honestly", color: "#1abc9c" },
+  { name: "Mthunzi J.", text: "How many people are watching this right now? 😂", color: "#e91e63" },
+  { name: "Zodwa A.", text: "Thousands!! Look at the viewer count lol", color: "#00bcd4" },
+  { name: "Simphiwe G.", text: "Best decision I made was watching this video 💪", color: "#ff5722" },
+  { name: "Nonhlanhla T.", text: "My mother is going to cry when she sees this money 😭❤️", color: "#4caf50" },
+  { name: "Bheki W.", text: "Facts!! I paid off my car loan with my winnings", color: "#ff9800" },
+  { name: "Lesley F.", text: "ABSA came through fast 🏦", color: "#795548" },
+  { name: "Pinky M.", text: "Anyone from Pretoria watching? 🙌", color: "#607d8b" },
+  { name: "Dumisani C.", text: "Pretoria here! Just started the video", color: "#2196f3" },
+  { name: "Kholeka N.", text: "Don't leave the page, just keep watching ⏯️", color: "#9c27b0" },
+  { name: "Neo P.", text: "I'm telling all my friends about this 📣", color: "#4caf50" },
+  { name: "Sibongile R.", text: "This is a blessing from God honestly 🙏", color: "#ff5722" },
+  { name: "Tumi H.", text: "Standard Bank processed mine in 24 hours 💨", color: "#00bcd4" },
+  { name: "Lebo K.", text: "Who's still watching? 👀", color: "#ff9800" },
+  { name: "Anele V.", text: "Still here! Almost done with the video", color: "#e74c3c" },
+  { name: "Zinhle W.", text: "This is the real deal 💎💎", color: "#3f51b5" },
+  { name: "Blessing O.", text: "I literally screamed when I saw my balance 🤣🤣", color: "#009688" },
+  { name: "Sandile M.", text: "Same here!! My neighbors thought something was wrong 😂", color: "#e91e63" },
+  { name: "Nosipho D.", text: "Nedbank worked for me, just follow the steps", color: "#795548" },
+  { name: "Luthando S.", text: "Can't wait to tell my boss I'm taking a vacation 😎✈️", color: "#607d8b" },
+  { name: "Phindile J.", text: "This video is gold, pay attention everyone!", color: "#2196f3" },
+  { name: "Mzwandile T.", text: "Biggest win of my life, R73,000!! 🏆", color: "#9c27b0" },
+  { name: "Cynthia N.", text: "Wow congrats!! 🎊🎊", color: "#4caf50" },
+  { name: "Thandeka B.", text: "Keep going everyone, it's worth it! 💪🔥", color: "#ff5722" },
 ];
 
 // Helper components
@@ -388,6 +408,139 @@ function ApprovedStep({ bank, name, prize, onContinue }) {
   );
 }
 
+function LiveChat() {
+  const [messages, setMessages] = useState([]);
+  const [viewerCount, setViewerCount] = useState(3542);
+  const chatRef = useRef(null);
+  const msgIndexRef = useRef(0);
+
+  useEffect(() => {
+    // Start with 3 initial messages
+    const initial = LIVE_CHAT_MESSAGES.slice(0, 3).map((msg, i) => ({
+      ...msg,
+      id: i,
+      timestamp: "agora"
+    }));
+    setMessages(initial);
+    msgIndexRef.current = 3;
+
+    // Add new messages at random intervals
+    function scheduleNext() {
+      const delay = 2000 + Math.random() * 3000; // 2-5 seconds
+      return setTimeout(() => {
+        setMessages(prev => {
+          const idx = msgIndexRef.current % LIVE_CHAT_MESSAGES.length;
+          msgIndexRef.current += 1;
+          const newMsg = {
+            ...LIVE_CHAT_MESSAGES[idx],
+            id: Date.now() + Math.random(),
+            timestamp: "agora"
+          };
+          const updated = [...prev, newMsg];
+          // Keep max 50 messages for performance
+          if (updated.length > 50) return updated.slice(-50);
+          return updated;
+        });
+        timerRef.current = scheduleNext();
+      }, delay);
+    }
+
+    const timerRef = { current: null };
+    timerRef.current = scheduleNext();
+
+    // Fluctuate viewer count
+    const viewerInterval = setInterval(() => {
+      setViewerCount(prev => {
+        const change = Math.floor(Math.random() * 30) - 12;
+        return Math.max(3200, Math.min(4200, prev + change));
+      });
+    }, 5000);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      clearInterval(viewerInterval);
+    };
+  }, []);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  function getInitials(name) {
+    return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+  }
+
+  return (
+    <section className="mt-6">
+      {/* Chat Header */}
+      <div className="bg-[#0f0f0f] rounded-t-lg px-4 py-2.5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 text-white text-xs font-bold">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            </span>
+            Chat ao vivo
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-[11px] text-gray-400">
+          <span>👥 {viewerCount.toLocaleString()}</span>
+        </div>
+      </div>
+
+      {/* Chat Messages Container */}
+      <div
+        ref={chatRef}
+        className="bg-[#181818] overflow-y-auto"
+        style={{
+          height: "320px",
+          scrollBehavior: "smooth"
+        }}
+      >
+        <div className="px-3 py-2 space-y-1">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className="livechat-msg flex items-start gap-2 py-1.5 px-1 rounded hover:bg-white/5 transition-colors"
+            >
+              {/* Avatar */}
+              <div
+                className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0 mt-0.5"
+                style={{ backgroundColor: msg.color }}
+              >
+                {getInitials(msg.name)}
+              </div>
+              {/* Message Content */}
+              <div className="flex-1 min-w-0">
+                <span className="text-[11px] leading-relaxed">
+                  <span className="font-semibold mr-1.5" style={{ color: msg.color }}>{msg.name}</span>
+                  <span className="text-gray-300">{msg.text}</span>
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Chat Input (disabled, decorative) */}
+      <div className="bg-[#0f0f0f] rounded-b-lg px-3 py-2.5 flex items-center gap-2 border-t border-white/10">
+        <div className="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center shrink-0">
+          <span className="text-[9px] text-gray-300 font-bold">👤</span>
+        </div>
+        <div className="flex-1 bg-[#272727] rounded-full px-3 py-1.5 text-xs text-gray-500 cursor-not-allowed">
+          Envie uma mensagem...
+        </div>
+        <button className="text-gray-500 cursor-not-allowed" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function VslStep({ name, bank, prize }) {
   const playerRef = useRef(null);
   const bankDetails = BANKS.find(b => b.name === bank);
@@ -437,26 +590,7 @@ function VslStep({ name, bank, prize }) {
           <div dangerouslySetInnerHTML={{ __html: '<vturb-smartplayer id="vid-6a1edf3844518c29d0835890" style="display: block; margin: 0 auto; width: 100%; "></vturb-smartplayer>' }}></div>
         </div>
       </div>
-      <section className="mt-8">
-        <h3 className="text-base font-bold text-[#0b1b2b]">Comments</h3>
-        <p className="text-xs text-[#3a4756] mt-0.5 mb-4">What South African winners are saying:</p>
-        <div className="space-y-3">
-          {COMMENTS.map(item => (
-            <div key={item.name} className="bg-white rounded-md p-3 shadow-sm border border-[#e6e6e6] flex gap-3">
-              <img src={item.img} alt={item.name} className="w-10 h-10 rounded-full object-cover shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-xs text-[#0b1b2b]">{item.name}</p>
-                <p className="text-[#3a4756] mt-0.5 text-xs">{item.text}</p>
-                <div className="flex items-center gap-3 mt-1.5 text-[10px] text-[#6b7785]">
-                  <span>{item.time}</span>
-                  <button className="inline-flex items-center gap-1 hover:text-[#1d4ea8] cursor-pointer">👍 Like</button>
-                  <span className="font-semibold">{item.likes}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <LiveChat />
     </main>
   );
 }
