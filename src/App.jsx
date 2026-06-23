@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import logo from './assets/lottery-logo.png';
 import supportAgentImg from './assets/support-agent.png';
+import supportVoiceAudio from './assets/support-voice.mp3';
 
 // Global Data
 const PRIZES = [
@@ -579,11 +580,8 @@ function LiveChat() {
 
 
 const SUBTITLES = [
-  { text: "Olá! Tudo bem? Sou a Amanda, do suporte da Loteria Nacional. Meus parabéns!", start: 0, end: 4500 },
-  { text: "Estou ligando para confirmar que seu prêmio de 15.000 Rands foi aprovado e já está pronto para ser transferido!", start: 4500, end: 10000 },
-  { text: "Para liberar o depósito agora mesmo na sua conta bancária, você só precisa assistir ao vídeo explicativo que está na sua tela.", start: 10000, end: 16000 },
-  { text: "Assista ao vídeo até o final para que o nosso sistema conclua o envio automático e seguro dos seus 15.000 Rands.", start: 16000, end: 22000 },
-  { text: "É muito rápido e garantido. Vou te redirecionar para o vídeo agora mesmo. Um abraço e boa sorte!", start: 22000, end: 27500 }
+  { text: "Olá! Você está aí? Vim te falar que você ganhou!", start: 0, end: 3800 },
+  { text: "Assista ao vídeo para saber como receber a sua recompensa.", start: 3800, end: 12000 }
 ];
 
 function CallStep({ name, prize, onCallEnded }) {
@@ -592,6 +590,7 @@ function CallStep({ name, prize, onCallEnded }) {
   const [timer, setTimer] = useState(0);
   const [currentSubtitle, setCurrentSubtitle] = useState("");
   const audioCtxRef = useRef(null);
+  const audioRef = useRef(null);
 
   // Synthesize telephone ringing sound
   useEffect(() => {
@@ -665,7 +664,7 @@ function CallStep({ name, prize, onCallEnded }) {
     };
   }, [isCallActive, callEnded]);
 
-  // Handle active call timer and speech
+  // Handle active call timer and play MP3 voice audio
   useEffect(() => {
     if (!isCallActive) return;
 
@@ -674,28 +673,21 @@ function CallStep({ name, prize, onCallEnded }) {
       setTimer(prev => prev + 100);
     }, 100);
 
-    // Speak voice message
-    const speechText = "Olá! Tudo bem? Sou a Amanda, do suporte da Loteria Nacional. Meus parabéns! Estou ligando para confirmar que seu prêmio de 15.000 Rands foi aprovado e já está pronto para ser transferido! Para liberar o depósito agora mesmo na sua conta bancária, você só precisa assistir ao vídeo explicativo que está na sua tela. Assista ao vídeo até o final para que o nosso sistema conclua o envio automático e seguro dos seus 15.000 Rands. É muito rápido e garantido. Vou te redirecionar para o vídeo agora mesmo. Um abraço e boa sorte!";
-    
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(speechText);
-      utterance.lang = "pt-BR";
-      
-      const voices = window.speechSynthesis.getVoices();
-      const ptVoice = voices.find(v => v.lang.startsWith("pt"));
-      if (ptVoice) {
-        utterance.voice = ptVoice;
-      }
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
-      window.speechSynthesis.speak(utterance);
-    }
+    // Play human MP3 voice
+    const audio = new Audio(supportVoiceAudio);
+    audioRef.current = audio;
+    audio.play().catch(e => console.error("Audio playback error:", e));
+
+    // Handle audio completion -> transition automatically
+    audio.onended = () => {
+      handleEndCall();
+    };
 
     return () => {
       clearInterval(interval);
-      if (typeof window !== "undefined" && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+      if (audio) {
+        audio.pause();
+        audio.onended = null;
       }
     };
   }, [isCallActive]);
@@ -707,8 +699,6 @@ function CallStep({ name, prize, onCallEnded }) {
     const match = SUBTITLES.find(sub => timer >= sub.start && timer < sub.end);
     if (match) {
       setCurrentSubtitle(match.text);
-    } else if (timer >= 27500) {
-      handleEndCall(true);
     }
   }, [timer, isCallActive]);
 
@@ -735,8 +725,9 @@ function CallStep({ name, prize, onCallEnded }) {
     setCallEnded(true);
     setIsCallActive(false);
 
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.onended = null;
     }
 
     // Play Hangups beeps
@@ -764,6 +755,7 @@ function CallStep({ name, prize, onCallEnded }) {
       }
     } catch (e) {}
   }
+
 
   const seconds = Math.floor(timer / 1000);
   const m = String(Math.floor(seconds / 60)).padStart(2, '0');
