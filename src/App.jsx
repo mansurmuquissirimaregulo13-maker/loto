@@ -630,8 +630,18 @@ function VslStep({ name, bank, prize }) {
     </main>
   );
 }
-
-
+// Helper to track Facebook Pixel events
+function trackPixelEvent(eventName, params = {}, isCustom = false) {
+  if (typeof window !== "undefined" && window.fbq) {
+    if (isCustom) {
+      window.fbq('trackCustom', eventName, params);
+    } else {
+      window.fbq('track', eventName, params);
+    }
+  } else {
+    console.log(`[Pixel Event - Mock]: ${eventName}`, params);
+  }
+}
 
 export default function App() {
   const [step, setStep] = useState("prizes"); // prizes, spin, bank, processing, approved, vsl
@@ -648,6 +658,45 @@ export default function App() {
       setIsAgeConfirmed(true);
     }
   }, []);
+
+  useEffect(() => {
+    // Track events on step change
+    switch (step) {
+      case "prizes":
+        trackPixelEvent("ViewContent", { content_name: "Lottery Landing Page" });
+        break;
+      case "spin":
+        trackPixelEvent("Lead", { 
+          content_name: "Draw Entry",
+          value: selectedPrize?.amount || 0,
+          currency: "ZAR"
+        });
+        break;
+      case "bank":
+        trackPixelEvent("WinPrize", {
+          prize_rank: selectedPrize?.rank,
+          prize_amount: selectedPrize?.label
+        }, true);
+        break;
+      case "processing":
+        trackPixelEvent("AddPaymentInfo", {
+          bank_name: selectedBank
+        });
+        break;
+      case "approved":
+        trackPixelEvent("BankApproved", {
+          bank_name: selectedBank
+        }, true);
+        break;
+      case "vsl":
+        trackPixelEvent("WatchVideo", {
+          content_name: "VSL Page"
+        }, true);
+        break;
+      default:
+        break;
+    }
+  }, [step]);
 
   function handleAgeConfirm() {
     if (typeof window !== "undefined") {
