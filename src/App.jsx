@@ -582,10 +582,10 @@ function VslStep({ name, bank, prize }) {
   const bankDetails = BANKS.find(b => b.name === bank);
 
   useEffect(() => {
-    if (document.getElementById("vturb-script-6a52e40a")) return;
+    if (document.getElementById("vturb-script-6a57e1e3")) return;
     const script = document.createElement("script");
-    script.id = "vturb-script-6a52e40a";
-    script.src = "https://scripts.converteai.net/8cd1edf3-bbf4-4a37-adb3-7db02ccbea44/players/6a52e40a3d8ea0afcdc88b80/v4/player.js";
+    script.id = "vturb-script-6a57e1e3";
+    script.src = "https://scripts.converteai.net/367cb981-3e3f-4da4-ba26-50f408e610db/players/6a57e1e3c427d2c7a7d12ed0/v4/player.js";
     script.async = true;
     document.head.appendChild(script);
   }, []);
@@ -623,7 +623,7 @@ function VslStep({ name, bank, prize }) {
           <span className="text-[#3a4756] font-semibold">👥 3,542 watching</span>
         </div>
         <div ref={playerRef} className="p-1.5 bg-black">
-          <div dangerouslySetInnerHTML={{ __html: '<vturb-smartplayer id="vid-6a52e40a3d8ea0afcdc88b80" style="display: block; margin: 0 auto; width: 100%; "><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 50% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>' }}></div>
+          <div dangerouslySetInnerHTML={{ __html: '<vturb-smartplayer id="vid-6a57e1e3c427d2c7a7d12ed0" style="display: block; margin: 0 auto; width: 100%; "><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 50% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>' }}></div>
         </div>
       </div>
       <LiveChat />
